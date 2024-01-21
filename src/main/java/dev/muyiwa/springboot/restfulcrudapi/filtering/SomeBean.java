@@ -1,12 +1,16 @@
 package dev.muyiwa.springboot.restfulcrudapi.filtering;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+
+@JsonFilter("SomeBeanFilter")
 public class SomeBean {
     @JsonProperty("field_1")
     private String firstField;
-    @JsonIgnore
+
+    @JsonProperty("field_2")
     private String secondField;
     @JsonProperty("field_3")
     private String thirdField;

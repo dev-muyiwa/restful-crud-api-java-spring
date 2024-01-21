@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -16,17 +18,13 @@ import java.util.Locale;
 public class UserController {
 
     private MessageSource messageSource;
-    @Autowired
-
-    public UserController(MessageSource source) {
-        this.messageSource = source;
-    }
-
     private UserDao dao;
 
-    public UserController(UserDao dao) {
+    public UserController(MessageSource source, UserDao dao) {
+        this.messageSource = source;
         this.dao = dao;
     }
+
 
     @GetMapping("/hello")
     public String helloInternationalization() {
@@ -41,12 +39,17 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public User getUser(@PathVariable int id) {
+    public EntityModel<User> getUser(@PathVariable int id) {
         User user = dao.findOne(id);
-        if(user == null) {
+        if (user == null) {
             throw new NotFoundException("User not found");
         }
-        return user;
+
+        EntityModel<User> userEntityModel = EntityModel.of(user);
+        WebMvcLinkBuilder linkBuilder = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getUsers());
+        userEntityModel.add(linkBuilder.withRel("all-users"));
+
+        return userEntityModel;
     }
 
     @DeleteMapping("/users/{id}")

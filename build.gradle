@@ -23,6 +23,8 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 //    For Content-Negotiation to XML
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+//    For Hypermedia As The Engine Of Application State (HATEOAS)
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.h2database:h2'

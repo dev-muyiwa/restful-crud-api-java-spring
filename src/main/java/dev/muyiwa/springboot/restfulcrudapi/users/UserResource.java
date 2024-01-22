@@ -1,5 +1,6 @@
 package dev.muyiwa.springboot.restfulcrudapi.users;
 
+import dev.muyiwa.springboot.restfulcrudapi.jpa.PostRepository;
 import dev.muyiwa.springboot.restfulcrudapi.jpa.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.context.MessageSource;
@@ -20,9 +21,11 @@ import java.util.Optional;
 public class UserResource {
 
     private UserRepository userRepository;
+    private PostRepository postRepository;
 
-    public UserResource(UserRepository userRepository) {
+    public UserResource(UserRepository userRepository, PostRepository postRepository) {
         this.userRepository = userRepository;
+        this.postRepository = postRepository;
     }
 
     @GetMapping("/users")
@@ -44,15 +47,6 @@ public class UserResource {
         return userEntityModel;
     }
 
-    @GetMapping("/users/{id}/posts")
-    public List<Post> getUserPosts(@PathVariable int id) {
-        Optional<User> user = userRepository.findById(id);
-        if (user.isEmpty()) {
-            throw new NotFoundException("User not found");
-        }
-        return user.get().getPosts();
-    }
-
     @DeleteMapping("/users/{id}")
     public void deleteUser(@PathVariable int id) {
         userRepository.deleteById(id);
@@ -69,4 +63,32 @@ public class UserResource {
 
         return ResponseEntity.created(location).build();
     }
+
+    @GetMapping("/users/{id}/posts")
+    public List<Post> getUserPosts(@PathVariable int id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            throw new NotFoundException("User not found");
+        }
+        return user.get().getPosts();
+    }
+
+    @PostMapping("/users/{id}/posts")
+    public ResponseEntity<Post> createPost(@PathVariable int id, @Valid @RequestBody Post post) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            throw new NotFoundException("User not found");
+        }
+        post.setUser(user.get());
+        Post newPost = postRepository.save(post);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(newPost.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).build();
+    }
+
 }

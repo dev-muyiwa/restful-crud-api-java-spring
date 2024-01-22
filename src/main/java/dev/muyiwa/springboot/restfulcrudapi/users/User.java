@@ -1,15 +1,21 @@
 package dev.muyiwa.springboot.restfulcrudapi.users;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
+
+import java.util.List;
 
 @Entity(name = "users")
 public class User {
 
-    protected User(){}
+    protected User() {
+    }
+
     @Id
     @GeneratedValue
     private Integer id;
@@ -19,6 +25,10 @@ public class User {
 
     @Email(message = "Email must be valid")
     private String email;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private List<Post> posts;
 
     public User(int id, String name, String email) {
         super();
@@ -49,6 +59,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
     }
 
     @Override
